@@ -1,0 +1,4 @@
+{
+  "app": "tsx --env-file-if-exists=../../.env app.ts",
+  "versionReporting": false
+}
