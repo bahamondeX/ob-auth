@@ -11,6 +11,14 @@ const random = () => randomBytes(32).toString('base64url')
 const digest = (value: string) => createHash('sha256').update(value).digest('base64url')
 const now = () => Math.floor(Date.now() / 1000)
 
+async function upcomingCode(totp: TOTP, previous?: string) {
+  const remaining = 30_000 - Date.now() % 30_000
+  if (remaining < 4_000 || totp.generate() === previous) {
+    await new Promise(resolve => setTimeout(resolve, remaining + 1_000))
+  }
+  return totp.generate()
+}
+
 test.use({ trace: 'off', screenshot: 'off', video: 'off' })
 
 test('live AWS native sign-in, TOTP, refresh, session expiry and ticket lifecycle', async ({ context, baseURL, playwright }) => {
@@ -32,6 +40,7 @@ test('live AWS native sign-in, TOTP, refresh, session expiry and ticket lifecycl
   try {
     expect((await request.post(origin + '/api/auth/signin', { headers: { origin: 'https://example.invalid' }, data: {} })).status()).toBe(403)
     expect((await request.get(origin + '/api/auth/session')).status()).toBe(200)
+    expect((await handle(request, 'link', { provider: 'google', password })).status()).toBe(401)
     const credentials = { email, password }
     const response = await handle(request, 'signin', credentials)
     expect(response.status()).toBe(200)
@@ -39,10 +48,11 @@ test('live AWS native sign-in, TOTP, refresh, session expiry and ticket lifecycl
     expect(step.step).toBe('enroll')
     expect((await (await request.get(origin + '/api/auth/session')).json()).user).toBeNull()
     const totp = new TOTP({ secret: Secret.fromBase32(step.secret), digits: 6, period: 30, algorithm: 'SHA1' })
-    const actual = totp.generate()
+    const actual = await upcomingCode(totp)
     const wrong = ((Number(actual) + 1) % 1000000).toString().padStart(6, '0')
     expect([400, 401]).toContain((await handle(request, 'challenge', { code: wrong })).status())
-    const verified = await handle(request, 'challenge', { code: totp.generate() })
+    const enrollmentCode = await upcomingCode(totp)
+    const verified = await handle(request, 'challenge', { code: enrollmentCode })
     expect(verified.status()).toBe(200)
     expect((await verified.json()).step).toBe('authenticated')
 
@@ -73,8 +83,7 @@ test('live AWS native sign-in, TOTP, refresh, session expiry and ticket lifecycl
     expect(nextSignIn.status()).toBe(200)
     expect((await nextSignIn.json()).step).toBe('totp')
     // Cognito rejects reusing the time slot that was consumed by enrollment.
-    if (totp.generate() === actual) await new Promise(resolve => setTimeout(resolve, 31_000 - Date.now() % 30_000))
-    expect((await handle(newBrowser, 'challenge', { code: totp.generate() })).status()).toBe(200)
+    expect((await handle(newBrowser, 'challenge', { code: await upcomingCode(totp, enrollmentCode) })).status()).toBe(200)
     const otherSession = (await (await newBrowser.get(origin + '/api/auth/session')).json()).user
     expect(otherSession.mfa && otherSession.emailVerified).toBe(true)
 
@@ -97,9 +106,9 @@ test('live AWS native sign-in, TOTP, refresh, session expiry and ticket lifecycl
     badClient.set('client_id', 'unregistered-test-application')
     expect((await request.get(authorization + badClient, { maxRedirects: 0 })).status()).toBe(400)
 
-    const issue = async () => {
-      expect((await request.get(authorization + params, { maxRedirects: 0 })).status()).toBe(303)
-      const approval = await handle(request, 'approve')
+    const issue = async (browser = request) => {
+      expect((await browser.get(authorization + params, { maxRedirects: 0 })).status()).toBe(303)
+      const approval = await handle(browser, 'approve')
       expect(approval.status()).toBe(200)
       const link = new URL((await approval.json()).next)
       expect(link.origin + link.pathname).toBe(callback)
@@ -123,8 +132,10 @@ test('live AWS native sign-in, TOTP, refresh, session expiry and ticket lifecycl
     expect((await (await request.get(origin + '/api/auth/session')).json()).user).toBeNull()
     expect((await backchannel('introspect', { grant })).status()).toBe(401)
     expect((await backchannel('ticket', { ...ticketBody, code: pending })).status()).toBe(401)
+    const revoked = await issue(newBrowser)
     expect((await handle(newBrowser, 'logout')).status()).toBe(200)
     expect((await (await newBrowser.get(origin + '/api/auth/session')).json()).user).toBeNull()
+    expect((await backchannel('ticket', { ...ticketBody, code: revoked })).status()).toBe(401)
 
     // The next opt-in Playwright scenario uses this established dedicated factor.
     const fixture = process.env.OB_AUTH_TOTP_FIXTURE

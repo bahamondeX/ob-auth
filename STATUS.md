@@ -1,9 +1,67 @@
 # OB Auth status
 
-## G0 · Discovery
+Updated 2026-11-24. The AWS foundation and Vercel production build are running. G4 custom domain cutover and G5 provider and email acceptance are open.
 
-- Checked AWS MCP caller, Cognito user pools, CloudFormation, ACM, SES and Route 53 in us-east-1, with a Cognito cross-check in us-east-2. Account ends in 6271. Existing Connectivity and AEGIS pools belong to other applications.
-- No existing OB Auth stack. SES in us-east-1 is in the sandbox and has no verified identities. DNS is delegated to Nameslink. The authentication hostname did not resolve.
-- Vercel MCP found one connected team. Apex domain lookup returned HTTP 403. The workspace inherited an unrelated home-directory Git repository. Initialized a dedicated local Git repository.
-- The provided favicon matches the live portfolio asset byte-for-byte. CodePen returned HTTP 403.
-- The workspace had no IMPLEMENTATION_PLAN.md or STATUS.md at startup. The OB Auth specification defines the current gates.
+## G0–G2 · Foundation, native identity and SSO
+
+- Discovered the dedicated Vercel project, verified AWS account 414135856271 and selected us-east-1. Reused the portfolio's live favicon byte-for-byte. The linked CodePen returned an access error.
+- Recovered the pool, DynamoDB table and KMS key from the previous rolled-back infrastructure attempt. Imported them into the termination-protected `ob-auth-identity` CloudFormation stack. The deployed template matches the synthesized CDK template.
+- Cognito pool `us-east-1_ZgLjGkDvK`, confidential Nitro client, Cognito federation domain `https://ob-auth-414135856271.auth.us-east-1.amazoncognito.com`, DynamoDB table `ob-auth-state` with TTL, and a dedicated rotating KMS key are live. Vercel uses the production-scoped AWS role. The confidential client credential resides in AWS Secrets Manager.
+- Seeded five registrants. The localhost Nuxt and React examples are enabled. AEGIS, Connectivity, and Portfolio are staged disabled and their production authentication systems were left in place.
+- A real canary registration succeeded and a Cognito verification email arrived at the owner-controlled canary mailbox. That user remains unconfirmed. Gmail withholds the one-time confirmation code. The supplied iOS/Android-compatible TOTP flow was tested separately using a dedicated, operator-seeded Cognito identity.
+
+## G3 · Federation
+
+| Provider | Delivery status | Required external configuration |
+| --- | --- | --- |
+| Google | Implementation present. Button disabled. | Dedicated Google Web OAuth client and secret. |
+| Microsoft | Implementation present for a tenant-specific Entra issuer. Button disabled. | Dedicated Entra Web client, secret value and tenant ID. |
+| GitHub | CDK and Nitro OIDC wiring and a Dex GitHub connector template are in the repo. Button disabled. | GitHub OAuth App, HTTPS Dex issuer and hosting with persistent storage, broker client ID and secret. |
+
+The exact callbacks and secret formats are in [provider setup](docs/oauth-provider-setup.md). Live sign-in and linking through these providers are pending. Federated sessions carry no native TOTP assertion. The Microsoft connection does not mark email verified. Application TOTP policies reject these sessions.
+
+## G4 · Deployment
+
+| Endpoint | Observed status |
+| --- | --- |
+| `https://ob-auth-rust.vercel.app` | Vercel production alias. Rendered the branded portal with HTTP 200. Health and session endpoints returned HTTP 200. |
+| `https://auth.oscarbahamonde.com` | Attached to the Vercel project. NamesLink DNS and Vercel domain verification are pending. |
+| `http://localhost:3000` | Live AWS-backed development portal. |
+| `http://localhost:3101`, `http://localhost:3102` | Nuxt and React local SDK demonstration applications. |
+
+Vercel deployment `dpl_FSZffNMuaqjoJczHniBmpfY9jYv2` serves commit `c2b374a`. The portal uses the custom hostname as its authentication origin. The Vercel alias is available for UI and transport smoke tests. The functions ran in IAD1 as verified by the response's execution-region header.
+
+Add these two records in the existing NamesLink zone for `oscarbahamonde.com`. Preserve the existing TXT values at the shared verification host.
+
+| Type | Relative name | Value |
+| --- | --- | --- |
+| CNAME | `auth` | `005d8a6f27de67d6.vercel-dns-017.com.` |
+| TXT | `_vercel` | `vc-domain-verify=auth.oscarbahamonde.com,3b647e0b9181afc20b30` |
+
+The NamesLink CLI has no authenticated session. After DNS is added, verify ownership and TLS in Vercel, then run the same browser and native canary checks on the custom hostname.
+
+## G5 · Evidence and release gates
+
+| Test | Result |
+| --- | --- |
+| TypeScript gates and production build | Passed for the workspace. Both SDK examples also type-checked and built. |
+| Vitest | 10 passed. |
+| Dependency scan | No known vulnerabilities reported in the production dependency audit. |
+| Live AWS API and DynamoDB | Passed password sign-in, TOTP enrollment and next-window TOTP, incorrect-code rejection, encrypted token rotation, server-expired sessions, CSRF, exact callback and client validation, concurrent single-use ticket exchange, ticket replay rejection and rejection after central expiry or revocation. The linking route rejected a request without a central session. |
+| Desktop live Chromium | SSO across the Nuxt and React applications using the same Cognito identity. Local app logout, reentry through central SSO and global logout with both app grants invalidated passed. |
+| Mobile Chromium | Pixel 7 viewport and touch emulation passed real native Cognito sign-in, TOTP, layout and logout on a local production build. |
+| Vercel browser smoke | Two UI tests passed with mocked auth responses over deployed HTTPS. The deployed SSR page returned HTTP 200 with CSP and HSTS. |
+| Vercel live API | The deployed runtime passed origin rejection, real Cognito TOTP enrollment and sign-in, DynamoDB and KMS session creation, secure host-only cookie flags and global logout. The HTTP suite supplied the configured canonical Origin while calling the production alias. |
+| Operator TOTP recovery | Passed on a dedicated Cognito fixture. Removing its authenticator revoked sessions and the next password sign-in required a new enrollment. |
+| Lighthouse on local production build | Mobile 98 performance and 100 accessibility. Desktop 100 performance and 100 accessibility. Only the login route was scored. |
+| Email and recovery acceptance | Real registration email delivered. Email code confirmation and password reset completion wait for test-user inbox verification. Production email uses Cognito's pilot sender until SES is ready. |
+| Federation and account linking | Live provider assertions, linking and assurance require the external provider registrations above. |
+| Public deployment | Custom hostname, canonical-domain smoke test and public end-to-end sign-in are pending DNS. |
+
+The SDK was packed and installed in an independent local project to validate the package exports. npm registry authentication returned HTTP 401, so publishing is pending. The Git repository has local milestone commits and no configured publication remote.
+
+## Cost and remaining operations
+
+- Dedicated AWS baseline is approximately USD 1.50–1.60/month before usage and tax for one KMS key, one Secrets Manager secret and one alarm. Cognito, DynamoDB, SES and Vercel have separate usage costs and allowances. DynamoDB on-demand caps are 25 read and 10 write request units per second. They control capacity and do not impose a monthly spending cap.
+- A USD 15 project budget and DynamoDB throttle alarm are deployed. The `OBAuthPilot=true` cost allocation tag still awaits Cost Explorer discovery/activation. The existing account budget provides interim account-level alerts.
+- The dedicated SES identity's Easy DKIM records still need publication, and SES remains in the regional sandbox. The staged identity and CloudFormation outputs are ready. See [operations](docs/operations.md).
