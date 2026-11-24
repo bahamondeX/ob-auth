@@ -2,6 +2,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-07-15',
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
+  build: { transpile: ['lucide-vue-next'] },
+  nitro: { vercel: { regions: ['iad1'] } },
   fonts: { providers: { google: false, googleicons: false, bunny: false, fontshare: false, fontsource: false, adobe: false } },
   colorMode: { preference: 'system', fallback: 'dark', classSuffix: '', storageKey: 'ob-auth-theme' },
   typescript: { strict: true },
