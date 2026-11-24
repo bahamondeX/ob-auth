@@ -1,0 +1,35 @@
+{
+  "name": "@ob-auth/portal",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev --dotenv ../../.env",
+    "build": "nuxt build",
+    "typecheck": "nuxt prepare && nuxt typecheck",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "3.1177.0",
+    "@aws-sdk/client-dynamodb": "3.1177.0",
+    "@aws-sdk/client-kms": "3.1177.0",
+    "@aws-sdk/client-secrets-manager": "3.1177.0",
+    "@aws-sdk/lib-dynamodb": "3.1177.0",
+    "@nuxt/ui": "4.13.1",
+    "@vercel/functions": "^3.4.0",
+    "@vueuse/core": "^14.2.0",
+    "aws-jwt-verify": "^5.1.1",
+    "h3": "1.15.11",
+    "jose": "^6.2.0",
+    "lucide-vue-next": "^0.577.0",
+    "nuxt": "4.7.0",
+    "openid-client": "^6.8.1",
+    "qrcode": "^1.5.4",
+    "tailwindcss": "^4.2.0",
+    "vue": "^3.5.0",
+    "zod": "^4.3.0"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.6",
+    "vue-tsc": "^3.2.0"
+  }
+}

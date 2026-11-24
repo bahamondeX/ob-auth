@@ -1,0 +1,34 @@
+# Render these placeholders via your hosting platform's secret injector.
+# Keep the rendered file permission 600. Dex sits behind a dedicated HTTPS endpoint.
+issuer: https://dex.example.invalid
+storage:
+  type: sqlite3
+  config:
+    file: /var/lib/dex/ob-auth.db
+web:
+  http: 0.0.0.0:5556
+oauth2:
+  grantTypes: [authorization_code]
+  responseTypes: [code]
+  skipApprovalScreen: true
+  alwaysShowLoginScreen: false
+enablePasswordDB: false
+expiry:
+  idTokens: 15m
+  authRequests: 10m
+staticClients:
+  - id: ob-auth-cognito
+    name: OB Auth
+    secret: REPLACE_USING_SECRET_INJECTION
+    redirectURIs:
+      - https://ob-auth-414135856271.auth.us-east-1.amazoncognito.com/oauth2/idpresponse
+      - https://auth.oscarbahamonde.com/api/auth/link-callback
+connectors:
+  - type: github
+    id: github
+    name: GitHub
+    config:
+      clientID: REPLACE_USING_SECRET_INJECTION
+      clientSecret: REPLACE_USING_SECRET_INJECTION
+      redirectURI: https://dex.example.invalid/callback
+      useLoginAsID: false

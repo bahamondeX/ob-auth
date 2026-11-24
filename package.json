@@ -1,0 +1,33 @@
+{
+  "name": "ob-auth-workspace",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": "^22.21.0 || ^24.11.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @ob-auth/portal dev",
+    "build": "pnpm --filter @ob-auth/portal build",
+    "typecheck": "pnpm --filter @ob-auth/portal typecheck && pnpm --filter @ob-auth/infra typecheck && pnpm --filter @oscarbahamonde/auth typecheck && tsc --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "cdk:synth": "pnpm --filter @ob-auth/infra synth",
+    "auth:app:create": "tsx --env-file-if-exists=.env scripts/register-app.ts",
+    "auth:app:seed": "tsx --env-file-if-exists=.env scripts/seed-apps.ts",
+    "auth:totp:recover": "tsx --env-file-if-exists=.env scripts/recover-totp.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "3.1177.0",
+    "@aws-sdk/client-dynamodb": "3.1177.0",
+    "@aws-sdk/lib-dynamodb": "3.1177.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.60.0",
+    "@types/node": "^22.19.0",
+    "otpauth": "^9.6.0",
+    "tsx": "^4.21.0",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.0"
+  }
+}

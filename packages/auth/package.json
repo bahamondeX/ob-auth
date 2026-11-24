@@ -1,0 +1,65 @@
+{
+  "name": "@oscarbahamonde/auth",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/nuxt/index.d.ts",
+      "default": "./dist/nuxt/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "default": "./dist/core/index.js"
+    },
+    "./nuxt": {
+      "types": "./dist/nuxt/index.d.ts",
+      "default": "./dist/nuxt/index.js"
+    },
+    "./vue": {
+      "types": "./dist/vue/index.d.ts",
+      "default": "./dist/vue/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "default": "./dist/server/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node -e \"require('node:fs').cpSync('nuxt/runtime','dist/nuxt/runtime',{recursive:true})\"",
+    "prepack": "pnpm build",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@nuxt/kit": "4.7.0",
+    "h3": "^1.15.11",
+    "jose": "^6.2.0",
+    "@nuxt/schema": "4.7.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "vue": "^3.5.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "vue": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "typescript": "^5.9.0",
+    "vue": "^3.5.0"
+  }
+}
