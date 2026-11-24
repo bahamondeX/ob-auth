@@ -78,7 +78,7 @@ const providerArns: string[] = []
 for (const provider of ['Google', 'Microsoft', 'GitHub'] as const) {
   const suppliedArn = process.env['OB_' + provider.toUpperCase() + '_SECRET_ARN']
   if (!suppliedArn) continue
-  const secret = new CfnParameter(stack, provider + 'SecretArn', { default: suppliedArn })
+  const secret = new CfnParameter(stack, provider + 'SecretArn', { default: suppliedArn, noEcho: true })
   providerArns.push(secret.valueAsString)
   const details: Record<string, string> = {
     client_id: SecretValue.secretsManager(secret.valueAsString, { jsonField: 'clientId' }).unsafeUnwrap(),
@@ -122,11 +122,11 @@ const client = new CfnUserPoolClient(stack, 'PortalClient', {
   ...(providers.length ? {
     allowedOAuthFlowsUserPoolClient: true, allowedOAuthFlows: ['code'],
     allowedOAuthScopes: ['openid', 'email', 'profile'],
-    callbackUrls: [domain + '/api/auth/callback'],
-    logoutUrls: [domain + '/api/auth/signed-out']
+    callbackUrLs: [domain + '/api/auth/callback'],
+    logoutUrLs: [domain + '/api/auth/signed-out']
   } : {})
 })
-for (const provider of providers) client.addDependency(provider)
+for (const provider of providers) client.addResourceDependency(provider)
 
 const table = new Table(stack, 'SessionStore', {
   tableName: 'ob-auth-state',

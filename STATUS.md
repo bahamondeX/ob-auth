@@ -14,11 +14,11 @@ Updated 2026-11-24. The AWS foundation and Vercel production build are running. 
 
 | Provider | Delivery status | Required external configuration |
 | --- | --- | --- |
-| Google | Implementation present. Button disabled. | Dedicated Google Web OAuth client and secret. |
-| Microsoft | Implementation present for a tenant-specific Entra issuer. Button disabled. | Dedicated Entra Web client, secret value and tenant ID. |
-| GitHub | CDK and Nitro OIDC wiring and a Dex GitHub connector template are in the repo. Button disabled. | GitHub OAuth App, HTTPS Dex issuer and hosting with persistent storage, broker client ID and secret. |
+| Google | Dedicated OB Auth Web client created in Google project `ob-auth-515722`. Credentials are in AWS Secrets Manager. Cognito redirected directly to `accounts.google.com` with HTTP 302. | Browser sign-in and account linking on the canonical hostname. |
+| Microsoft | Dedicated single-tenant OB Auth Web application registered in CYM Ingenieros Entra with the authorized `.pe` account. The replacement credential is in AWS Secrets Manager. Cognito redirected directly to `login.microsoftonline.com` with HTTP 302. | Browser sign-in on the canonical hostname and verification that Entra supplies the required email claim. The new secret expires in May 2027. |
+| GitHub | CDK and Nitro OIDC wiring and a Dex GitHub connector template are in the repo. Button disabled. | GitHub and Auth0 authenticated access, the broker callback and the GitHub app credential. Dex remains a documented self-hosted option. |
 
-The exact callbacks and secret formats are in [provider setup](docs/oauth-provider-setup.md). Live sign-in and linking through these providers are pending. Federated sessions carry no native TOTP assertion. The Microsoft connection does not mark email verified. Application TOTP policies reject these sessions.
+CloudFormation change set `ob-auth-google-microsoft` applied without replacing the pool or app client. The first Entra secret was revoked after a diagnostics view exposed it. Its replacement was transferred directly into AWS Secrets Manager. The Cognito client has authorization-code flow, the exact OB Auth callback and both provider registrations. Native password SDK authentication remains enabled. The exact callbacks and secret formats are in [provider setup](docs/oauth-provider-setup.md). Live sign-in and linking through these providers are pending. Federated sessions carry no native TOTP assertion. The Microsoft connection does not mark email verified. Application TOTP policies reject these sessions.
 
 ## G4 · Deployment
 
@@ -29,7 +29,7 @@ The exact callbacks and secret formats are in [provider setup](docs/oauth-provid
 | `http://localhost:3000` | Live AWS-backed development portal. |
 | `http://localhost:3101`, `http://localhost:3102` | Nuxt and React local SDK demonstration applications. |
 
-Vercel deployment `dpl_FSZffNMuaqjoJczHniBmpfY9jYv2` serves commit `c2b374a`. The portal uses the custom hostname as its authentication origin. The Vercel alias is available for UI and transport smoke tests. The functions ran in IAD1 as verified by the response's execution-region header.
+Vercel production deployment `dpl_D3ujbRBcd6NWNSN3ZvGczBAg9w9N` rebuilt the verified portal release with Google and Microsoft enabled. The portal uses the custom hostname as its authentication origin. The Vercel alias is available for UI and transport smoke tests. The deployed session API returned HTTP 200 and advertised both providers. Using the configured canonical Origin, the deployed provider start routes both returned HTTP 200, an explicit Cognito provider, PKCE S256, the exact callback, and a secure host-only HttpOnly cookie. The functions ran in IAD1. The custom hostname still failed DNS resolution during the smoke test.
 
 Add these two records in the existing NamesLink zone for `oscarbahamonde.com`. Preserve the existing TXT values at the shared verification host.
 
@@ -62,6 +62,6 @@ The SDK was packed and installed in an independent local project to validate the
 
 ## Cost and remaining operations
 
-- Dedicated AWS baseline is approximately USD 1.50–1.60/month before usage and tax for one KMS key, one Secrets Manager secret and one alarm. Cognito, DynamoDB, SES and Vercel have separate usage costs and allowances. DynamoDB on-demand caps are 25 read and 10 write request units per second. They control capacity and do not impose a monthly spending cap.
+- Dedicated AWS baseline is approximately USD 2.30–2.40/month before usage and tax for one KMS key, three Secrets Manager secrets and one alarm. Cognito, DynamoDB, SES and Vercel have separate usage costs and allowances. DynamoDB on-demand caps are 25 read and 10 write request units per second. They control capacity and do not impose a monthly spending cap.
 - A USD 15 project budget and DynamoDB throttle alarm are deployed. The `OBAuthPilot=true` cost allocation tag still awaits Cost Explorer discovery/activation. The existing account budget provides interim account-level alerts.
 - The dedicated SES identity's Easy DKIM records still need publication, and SES remains in the regional sandbox. The staged identity and CloudFormation outputs are ready. See [operations](docs/operations.md).
