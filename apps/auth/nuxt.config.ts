@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
   build: { transpile: ['lucide-vue-next'] },
-  nitro: { vercel: { regions: ['iad1'] } },
+  nitro: { vercel: { functions: { regions: ['iad1'], maxDuration: 30 } } },
   fonts: { providers: { google: false, googleicons: false, bunny: false, fontshare: false, fontsource: false, adobe: false } },
   colorMode: { preference: 'system', fallback: 'dark', classSuffix: '', storageKey: 'ob-auth-theme' },
   typescript: { strict: true },
