@@ -1,6 +1,6 @@
 # OB Auth status
 
-Updated 2026-11-24. The AWS foundation and Vercel production build are running. G4 custom domain cutover and G5 provider and email acceptance are open.
+Updated 2026-11-24. The AWS foundation and Vercel production build are running. G4 custom domain cutover passed. G5 provider and email acceptance remain open.
 
 ## G0–G2 · Foundation, native identity and SSO
 
@@ -16,7 +16,7 @@ Updated 2026-11-24. The AWS foundation and Vercel production build are running. 
 | --- | --- | --- |
 | Google | Dedicated OB Auth Web client created in Google project `ob-auth-515722`. Credentials are in AWS Secrets Manager. Cognito redirected directly to `accounts.google.com` with HTTP 302. | Browser sign-in and account linking on the canonical hostname. |
 | Microsoft | Dedicated single-tenant OB Auth Web application registered in CYM Ingenieros Entra with the authorized `.pe` account. The replacement credential is in AWS Secrets Manager. Cognito redirected directly to `login.microsoftonline.com` with HTTP 302. | Browser sign-in on the canonical hostname and verification that Entra supplies the required email claim. The new secret expires in May 2027. |
-| GitHub | OAuth app `OB Auth` registered under `bahamondeX` and connected to the dedicated Auth0 Web application. Cognito has a live OIDC provider for it. Auth0 enables GitHub only and stores the GitHub credential. Its Cognito-facing credential is in AWS Secrets Manager. | Complete one browser sign-in on the canonical hostname after DNS. Dex remains a documented self-hosted option. |
+| GitHub | OAuth app `OB Auth` registered under `bahamondeX` and connected to the dedicated Auth0 Web application. Cognito has a live OIDC provider for it. Auth0 enables GitHub only and stores the GitHub credential. Its Cognito-facing credential is in AWS Secrets Manager. | Complete one browser sign-in on the canonical hostname. Dex remains a documented self-hosted option. |
 
 CloudFormation change set `ob-auth-google-microsoft` applied without replacing the pool or app client. The first Entra secret was revoked after a diagnostics view exposed it. Its replacement was transferred directly into AWS Secrets Manager. The Cognito client has authorization-code flow, the exact OB Auth callback and three configured identity providers. Native password SDK authentication remains enabled. The exact callbacks and secret formats are in [provider setup](docs/oauth-provider-setup.md). Live sign-in and linking through these providers are pending. The `ob-auth-github-auth0-discovery` change set completed without replacing the Cognito pool or app client. Cognito rejected the initial authorization URL override containing a query and rolled back that attempt. With OIDC discovery, Cognito redirected to Auth0 with HTTP 302. Auth0 presented its GitHub-only sign-in page. A separate authorize request with the explicit GitHub connection redirected to GitHub with HTTP 302, `user:email`, and the exact broker callback. Federated sessions carry no native TOTP assertion. The Microsoft connection does not mark email verified. Application TOTP policies reject these sessions.
 
@@ -25,20 +25,20 @@ CloudFormation change set `ob-auth-google-microsoft` applied without replacing t
 | Endpoint | Observed status |
 | --- | --- |
 | `https://ob-auth-rust.vercel.app` | Vercel production alias. Rendered the branded portal with HTTP 200. Health and session endpoints returned HTTP 200. |
-| `https://auth.oscarbahamonde.com` | Attached to the Vercel project. NamesLink DNS and Vercel domain verification are pending. |
+| `https://auth.oscarbahamonde.com` | Published in NamesLink and verified by Vercel. The portal, health and session endpoints returned HTTP 200 over HTTPS. |
 | `http://localhost:3000` | Live AWS-backed development portal. |
 | `http://localhost:3101`, `http://localhost:3102` | Nuxt and React local SDK demonstration applications. |
 
-Vercel production deployment `dpl_7YdhcR53DNjbGSx6zBaskRwAJrmM` rebuilt the verified portal release with GitHub, Google and Microsoft enabled. The deployed session API returned HTTP 200 and advertised all three providers. The provider start routes were verified with the configured canonical Origin. The GitHub start route returned HTTP 200, the explicit GitHub Cognito provider, PKCE S256, the exact canonical callback, and a secure host-only HttpOnly cookie. The Vercel alias is available for UI and transport checks. DNS lookup of the canonical hostname still returned `ENOTFOUND`, so a completed canonical browser sign-in remains unverified.
+Vercel production deployment `dpl_7YdhcR53DNjbGSx6zBaskRwAJrmM` rebuilt the verified portal release with GitHub, Google and Microsoft enabled. The session API advertised all three providers. The canonical-domain start routes returned HTTP 200 on the canonical hostname with PKCE S256, the exact HTTPS callback and secure host-only HttpOnly cookies. Cognito returned HTTP 302 to Google, Microsoft or the dedicated Auth0 broker. An Origin using the Vercel alias was rejected with HTTP 403. The check stopped before user authentication.
 
-Add these two records in the existing NamesLink zone for `oscarbahamonde.com`. Preserve the existing TXT values at the shared verification host.
+These two records are live in the NamesLink zone for `oscarbahamonde.com`. Both authoritative nameservers returned the CNAME and all four `_vercel` TXT values, including the three existing ones.
 
 | Type | Relative name | Value |
 | --- | --- | --- |
 | CNAME | `auth` | `005d8a6f27de67d6.vercel-dns-017.com.` |
 | TXT | `_vercel` | `vc-domain-verify=auth.oscarbahamonde.com,3b647e0b9181afc20b30` |
 
-The NamesLink CLI has no authenticated session. After DNS is added, verify ownership and TLS in Vercel, then run the same browser and native canary checks on the custom hostname.
+NamesLink required operator MFA for the first DNS write. Vercel returned `verified: true` for the custom hostname, and the HTTPS checks passed with normal certificate verification.
 
 ## G5 · Evidence and release gates
 
@@ -56,7 +56,7 @@ The NamesLink CLI has no authenticated session. After DNS is added, verify owner
 | Lighthouse on local production build | Mobile 98 performance and 100 accessibility. Desktop 100 performance and 100 accessibility. Only the login route was scored. |
 | Email and recovery acceptance | Real registration email delivered. Email code confirmation and password reset completion wait for test-user inbox verification. Production email uses Cognito's pilot sender until SES is ready. |
 | Federation and account linking | All three providers are configured and their authorization redirects were exercised. Completed browser sign-in and linking on the canonical domain are pending. |
-| Public deployment | Custom hostname, canonical-domain smoke test and public end-to-end sign-in are pending DNS. |
+| Public deployment | DNS, Vercel ownership verification and the canonical HTTPS smoke test passed. End-to-end sign-in with provider accounts remains pending. |
 
 The SDK was packed and installed in an independent local project to validate the package exports. npm registry authentication returned HTTP 401, so publishing is pending. The Git repository has local milestone commits and no configured publication remote.
 
