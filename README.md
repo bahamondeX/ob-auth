@@ -1,8 +1,6 @@
 # OB Auth
 
-<p align="center">
-  <img src="docs/assets/ob-auth-portrait.webp" width="440" alt="A glowing sapphire identity core encircled by titanium rings" />
-</p>
+![A glowing sapphire identity core encircled by titanium rings](./docs/assets/ob-auth-portrait.webp)
 
 OB Auth is a Nuxt 4 authentication portal for Oscar Bahamonde's applications. One Cognito User Pool owns credentials and identity. Nitro runs the portal and first-party SSO protocol. DynamoDB holds centralized sessions and short-lived transactions. AWS KMS protects Cognito tokens and pending native authentication material. The application backend keeps its own host-only session and checks central grants on protected requests.
 
