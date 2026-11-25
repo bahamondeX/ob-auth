@@ -1,4 +1,4 @@
-# @oscarbahamonde/auth
+# @oscarbahamonde/ob-auth
 
 The TypeScript SDK for first-party OB Auth relying parties. Register your app with a backend callback at `https://<app-origin>/auth/callback`. Keep the issued client secret and an independent 32-byte base64url session key in the app's private runtime configuration.
 
@@ -6,7 +6,7 @@ The TypeScript SDK for first-party OB Auth relying parties. Register your app wi
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['@oscarbahamonde/auth'],
+  modules: ['@oscarbahamonde/ob-auth'],
   obAuth: {
     domain: 'https://auth.oscarbahamonde.com',
     clientId: process.env.OB_AUTH_CLIENT_ID,
@@ -19,9 +19,9 @@ Set `NUXT_OB_AUTH_CLIENT_SECRET` and `NUXT_OB_AUTH_SESSION_KEY` at runtime. Set 
 
 ## React, Vue, and Node
 
-Import `useAuth()` from `@oscarbahamonde/auth/react` or `@oscarbahamonde/auth/vue`. Outside components, `createAuthClient()` from `@oscarbahamonde/auth/core` provides the same browser operations. React and Vue SSR can initialize the hook with an app session read using `createServerAuth().getSession(event)`.
+Import `useAuth()` from `@oscarbahamonde/ob-auth/react` or `@oscarbahamonde/ob-auth/vue`. Outside components, `createAuthClient()` from `@oscarbahamonde/ob-auth/core` provides the same browser operations. React and Vue SSR can initialize the hook with an app session read using `createServerAuth().getSession(event)`.
 
-Use `createServerAuth()` from `@oscarbahamonde/auth/server` in an H3 backend hosted on the app's origin. Wire these backend routes.
+Use `createServerAuth()` from `@oscarbahamonde/ob-auth/server` in an H3 backend hosted on the app's origin. Wire these backend routes.
 
 | Route | Handler |
 | --- | --- |

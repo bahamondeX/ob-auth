@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  modules: ['@oscarbahamonde/auth'],
+  modules: ['@oscarbahamonde/ob-auth'],
   obAuth: {
     domain: 'http://localhost:3000',
     clientId: 'example-nuxt',

@@ -1,5 +1,5 @@
 import { createApp, createError, createRouter, defineEventHandler } from 'h3'
-import { createServerAuth } from '@oscarbahamonde/auth/server'
+import { createServerAuth } from '@oscarbahamonde/ob-auth/server'
 
 export function createBff(env: Record<string, string | undefined>) {
   const auth = createServerAuth({

@@ -58,7 +58,7 @@ NamesLink required operator MFA for the first DNS write. Vercel returned `verifi
 | Federation and account linking | All three providers are configured and their authorization redirects were exercised. Completed browser sign-in and linking on the canonical domain are pending. |
 | Public deployment | DNS, Vercel ownership verification and the canonical HTTPS smoke test passed. End-to-end sign-in with provider accounts remains pending. |
 
-The SDK was packed and installed in an independent local project to validate the package exports. npm registry authentication returned HTTP 401, so publishing is pending. The Git repository has local milestone commits and no configured publication remote.
+The SDK is now named `@oscarbahamonde/ob-auth`. Version `0.1.0` passed a fresh tarball install and React and Vue SSR checks. The public npm release is staged for maintainer 2FA approval. The Git repository has local milestone commits and no configured publication remote.
 
 ## Cost and remaining operations
 

@@ -3,7 +3,7 @@ import type { NuxtModule } from '@nuxt/schema'
 import type { ServerAuthOptions } from '../server/index.ts'
 
 const obAuth: NuxtModule<Required<ServerAuthOptions>> = defineNuxtModule<Required<ServerAuthOptions>>({
-  meta: { name: '@oscarbahamonde/auth', configKey: 'obAuth', compatibility: { nuxt: '^4.0.0' } },
+  meta: { name: '@oscarbahamonde/ob-auth', configKey: 'obAuth', compatibility: { nuxt: '^4.0.0' } },
   defaults: { domain: 'https://auth.oscarbahamonde.com', clientId: '', appOrigin: '', clientSecret: '', sessionKey: '', logoutUri: '' },
   setup(options, nuxt) {
     const resolver = createResolver(import.meta.url)

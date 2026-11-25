@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client'
 import { useState } from 'react'
-import { useAuth } from '@oscarbahamonde/auth/react'
+import { useAuth } from '@oscarbahamonde/ob-auth/react'
 import './style.css'
 
 function App() {

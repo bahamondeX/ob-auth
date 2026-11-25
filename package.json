@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "pnpm --filter @ob-auth/portal dev",
     "build": "pnpm --filter @ob-auth/portal build",
-    "typecheck": "pnpm --filter @ob-auth/portal typecheck && pnpm --filter @ob-auth/infra typecheck && pnpm --filter @oscarbahamonde/auth typecheck && tsc --noEmit",
+    "typecheck": "pnpm --filter @ob-auth/portal typecheck && pnpm --filter @ob-auth/infra typecheck && pnpm --filter @oscarbahamonde/ob-auth typecheck && tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test",
     "cdk:synth": "pnpm --filter @ob-auth/infra synth",

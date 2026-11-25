@@ -3,13 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter @oscarbahamonde/auth build && vite --host localhost --port 3102 --strictPort",
-    "build": "pnpm --filter @oscarbahamonde/auth build && vite build",
+    "dev": "pnpm --filter @oscarbahamonde/ob-auth build && vite --host localhost --port 3102 --strictPort",
+    "build": "pnpm --filter @oscarbahamonde/ob-auth build && vite build",
     "start": "node --experimental-strip-types --env-file-if-exists=.env server.ts",
-    "typecheck": "pnpm --filter @oscarbahamonde/auth build && tsc --noEmit"
+    "typecheck": "pnpm --filter @oscarbahamonde/ob-auth build && tsc --noEmit"
   },
   "dependencies": {
-    "@oscarbahamonde/auth": "workspace:*",
+    "@oscarbahamonde/ob-auth": "workspace:*",
     "h3": "^1.15.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

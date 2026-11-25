@@ -106,7 +106,7 @@ importers:
 
   examples/nuxt:
     dependencies:
-      '@oscarbahamonde/auth':
+      '@oscarbahamonde/ob-auth':
         specifier: workspace:*
         version: link:../../packages/auth
       nuxt:
@@ -125,7 +125,7 @@ importers:
 
   examples/react:
     dependencies:
-      '@oscarbahamonde/auth':
+      '@oscarbahamonde/ob-auth':
         specifier: workspace:*
         version: link:../../packages/auth
       h3:

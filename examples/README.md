@@ -20,13 +20,13 @@ Sign in at the Nuxt app, then choose sign-in at the React app in the same browse
 
 ## Integrating a relying party
 
-Install `@oscarbahamonde/auth` from the workspace, or pack this library with `pnpm --filter @oscarbahamonde/auth pack` and install the tarball in your application. The package exports JavaScript and TypeScript declarations. The React example’s Node server uses TypeScript stripping for its example entry point. Registry publishing requires verified package ownership.
+Install `@oscarbahamonde/ob-auth` from the workspace, or pack this library with `pnpm --filter @oscarbahamonde/ob-auth pack` and install the tarball in your application. The package exports JavaScript and TypeScript declarations. The React example’s Node server uses TypeScript stripping for its example entry point. Registry publishing requires verified package ownership.
 
 ### Nuxt 4
 
 ```typescript
 export default defineNuxtConfig({
-  modules: ['@oscarbahamonde/auth'],
+  modules: ['@oscarbahamonde/ob-auth'],
   obAuth: {
     domain: 'https://auth.oscarbahamonde.com',
     clientId: process.env.OB_AUTH_CLIENT_ID,
@@ -39,9 +39,9 @@ Set `NUXT_OB_AUTH_CLIENT_SECRET` and `NUXT_OB_AUTH_SESSION_KEY` in private runti
 
 ### React, Vue, and Node
 
-Use `useAuth()` from `@oscarbahamonde/auth/react` or `@oscarbahamonde/auth/vue` within components and `createAuthClient()` from `@oscarbahamonde/auth/core` in browser code outside components. The client provides `login()`, `logout()`, `getSession()`, `getUser()`, `requireAuth()`, and `isAuthenticated()`. Browser session checks support rendering and navigation. Apply data authorization independently on every protected server request.
+Use `useAuth()` from `@oscarbahamonde/ob-auth/react` or `@oscarbahamonde/ob-auth/vue` within components and `createAuthClient()` from `@oscarbahamonde/ob-auth/core` in browser code outside components. The client provides `login()`, `logout()`, `getSession()`, `getUser()`, `requireAuth()`, and `isAuthenticated()`. Browser session checks support rendering and navigation. Apply data authorization independently on every protected server request.
 
-Install a same-origin backend using `createServerAuth()` from `@oscarbahamonde/auth/server`. The [React example backend](react/bff.ts) shows the four standard authentication routes and a protected API. The callback uses a state check and PKCE and exchanges the short-lived ticket directly with OB Auth. The local HttpOnly cookie contains an encrypted grant scoped to the application. Protected requests validate that grant against the central portal. The app receives the asserted Cognito subject and uses its own policy to decide which resources that subject can access. Protect app permissions independently of central identity and keep the client secret and cookie key server-side.
+Install a same-origin backend using `createServerAuth()` from `@oscarbahamonde/ob-auth/server`. The [React example backend](react/bff.ts) shows the four standard authentication routes and a protected API. The callback uses a state check and PKCE and exchanges the short-lived ticket directly with OB Auth. The local HttpOnly cookie contains an encrypted grant scoped to the application. Protected requests validate that grant against the central portal. The app receives the asserted Cognito subject and uses its own policy to decide which resources that subject can access. Protect app permissions independently of central identity and keep the client secret and cookie key server-side.
 
 ## Live SSO acceptance
 

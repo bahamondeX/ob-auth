@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import { useAsyncData, useRequestFetch, useResponseHeader } from '#imports'
-import { AuthRequiredError, createAuthClient, parseSession, type AuthSession, type LogoutOptions } from '@oscarbahamonde/auth/core'
+import { AuthRequiredError, createAuthClient, parseSession, type AuthSession, type LogoutOptions } from '@oscarbahamonde/ob-auth/core'
 
 export function useAuth() {
   if (import.meta.server) useResponseHeader('cache-control').value = 'private, no-store'

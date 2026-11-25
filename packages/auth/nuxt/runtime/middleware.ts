@@ -1,5 +1,5 @@
 import { defineNuxtRouteMiddleware, navigateTo, useRequestFetch, useResponseHeader } from '#imports'
-import { loginPath, type AuthSession } from '@oscarbahamonde/auth/core'
+import { loginPath, type AuthSession } from '@oscarbahamonde/ob-auth/core'
 
 export default defineNuxtRouteMiddleware(async (to) => {
   if (import.meta.server) useResponseHeader('cache-control').value = 'private, no-store'
