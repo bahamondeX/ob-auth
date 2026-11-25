@@ -20,7 +20,7 @@ Sign in at the Nuxt app, then choose sign-in at the React app in the same browse
 
 ## Integrating a relying party
 
-Install `@oscarbahamonde/ob-auth` from the workspace, or pack this library with `pnpm --filter @oscarbahamonde/ob-auth pack` and install the tarball in your application. The package exports JavaScript and TypeScript declarations. The React example’s Node server uses TypeScript stripping for its example entry point. Registry publishing requires verified package ownership.
+Install the SDK in your application with `pnpm add @oscarbahamonde/ob-auth`. The examples use the workspace copy, which you can package with `pnpm --filter @oscarbahamonde/ob-auth pack`. The package exports JavaScript and TypeScript declarations. The React example’s Node server uses TypeScript stripping for its example entry point.
 
 ### Nuxt 4
 

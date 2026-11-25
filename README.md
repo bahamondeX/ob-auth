@@ -28,7 +28,7 @@ pnpm auth:app:create --name "My Application" --callback "https://myapp.oscarbaha
 
 The CLI registers a confidential application with a random server credential. Store the generated mode-600 environment file securely. Review the application's access policy, registered redirects, and SDK configuration before enabling it. The example registrations for AEGIS, Connectivity, and the portfolio are staged for later integration. Their authentication systems are untouched.
 
-Install the SDK from a workspace or pack it from [packages/auth](packages/auth/README.md). Configure its Nuxt module or the React adapter with a Node backend-for-frontend. Browser bundles use only same-origin session and navigation endpoints. Set the credentials in the host's private runtime configuration, and use the SDK on protected server routes in addition to frontend middleware.
+Install the SDK with `pnpm add @oscarbahamonde/ob-auth`. The workspace and tarball options are documented in the [SDK setup guide](packages/auth/README.md). Configure its Nuxt module or the React adapter with a Node backend-for-frontend. Browser bundles use only same-origin session and navigation endpoints. Set the credentials in the host's private runtime configuration, and use the SDK on protected server routes in addition to frontend middleware.
 
 ## Authentication assurance
 
