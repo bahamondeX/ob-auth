@@ -92,8 +92,11 @@ for (const provider of ['Google', 'Microsoft', 'GitHub'] as const) {
     details.attributes_request_method = 'GET'
     const authorizationEndpoint = provider === 'GitHub' ? process.env.OB_GITHUB_AUTHORIZE_URL : undefined
     if (authorizationEndpoint) {
-      if (new URL(authorizationEndpoint).origin !== new URL(issuer).origin) throw new Error('GitHub authorization endpoint must belong to the configured HTTPS broker')
-      details.authorize_url = authorizationEndpoint
+      const endpoint = new URL(authorizationEndpoint)
+      if (endpoint.origin !== new URL(issuer).origin || endpoint.search || endpoint.hash || endpoint.username || endpoint.password) {
+        throw new Error('GitHub authorization endpoint must be an HTTPS broker endpoint without credentials, query, or fragment')
+      }
+      details.authorize_url = endpoint.href
     }
   }
   providers.push(new CfnUserPoolIdentityProvider(stack, provider, {
